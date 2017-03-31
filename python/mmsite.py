@@ -1,9 +1,18 @@
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
+import argparse
+import os
+import sys
 import re
+def write_file(url,filename):
+    buffer = urlopen(url).read()
+    with open(filename,"wb") as fp:
+        fp.write(buffer)
+
 def get_fullurl_from_abbrev(name):
     """return the full url address from a abrev name
     """
+    return "http://www.aitaotu.com/guonei/%s.html" % name
     pass
 
 
@@ -17,7 +26,11 @@ def get_title(bsobj):
     :param content:
     :return:
     """
-    return bsobj.title
+    name = bsobj.title.string
+    index = name.find('(')
+    if index >= 0:
+        return name[0:index]
+
 
 def parse_tags(bsobj):
     return [node.text for node in bsobj.find(class_="photo-fbl").find_all("a","blue")]
@@ -56,7 +69,7 @@ def get_page_iter(bsobj):
                 yield  picurl
         if nexturl is not None:
             content = get_html_content(sitebase + nexturl)
-            bsobj = BeautifulSoup(content,"lxml")
+            bsobj = BeautifulSoup(content)
         else:
             bsobj = None
 
@@ -76,7 +89,7 @@ def get_mmpicset_info_from_url(url):
     bytebuffer = response.read()
     # decode to utf-8 string
     htmlcontent = bytebuffer.decode('utf-8')
-    bsobj = BeautifulSoup(htmlcontent,"lxml")
+    bsobj = BeautifulSoup(htmlcontent)
     # get the title
     title = get_title(bsobj)
     # get the page enumerate
@@ -95,8 +108,22 @@ def get_tags(content):
     """
     pass
 
-title,iterpics,taglist = get_mmpicset_info_from_url("https://www.aitaotu.com/guonei/30430.html")
-print(title)
-print(taglist)
-for pic in iterpics:
-    print(pic)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="download the mm picture")
+    parser.add_argument("-p","--pageid",default="30430",help = "specify the picture url id")
+    args = parser.parse_args()
+    url = get_fullurl_from_abbrev(args.pageid)
+    title,iterpics,taglist = get_mmpicset_info_from_url(url)
+    print(title)
+    print(taglist)
+    if not os.path.exists(title):
+        os.makedirs(title)
+
+    for i,pic in enumerate(iterpics):
+        filename = os.path.join(title,"%02d.jpg"%(i + 1))
+        print(pic + " ==> " + filename)
+        write_file(pic,filename)
+
+
+
