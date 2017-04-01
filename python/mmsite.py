@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import re
+import mmsitedao
 def write_file(url,filename):
     buffer = urlopen(url).read()
     with open(filename,"wb") as fp:
@@ -98,32 +99,55 @@ def get_mmpicset_info_from_url(url):
     tags = parse_tags(bsobj)
     return (title,iterpage,tags)
 
+def parse_summery(bsobj,albumdao):
+    #title
+    #url
+    #thumb url
+    # tags
+    nodes = bsobj.find_all(class_='item masonry_brick')
+    for node in nodes:
+        title = node.find(class_='title').find('a').text
+        url = node.find(class_='img').find('a').get('href')
+        thumburl = node.find(class_='img').find('img').get('data-original')
 
-
-def get_tags(content):
-    """
-
-    :param content:
-    :return:
-    """
+        print ("title : %s" % title)
+        print ("url : %s" % url)
+        print("thumburl : %s" % thumburl)
+        if not albumdao.is_album_exist(url):
+            albumdao.add_album(title,url,thumburl)
+        print("\n")
     pass
 
+def test():
+    # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
+    database = mmsitedao.PictureDatabase('album.db')
+    albumdao = mmsitedao.AlbumSummeryDao(database)
+    for i in range(1,502):
+        print("parse page %d" % i)
+        url = "https://www.aitaotu.com/guonei/list_%d.html" % i
+        htmldoc = get_html_content(url)
+        bsobj = BeautifulSoup(htmldoc)
+        parse_summery(bsobj,albumdao)
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="download the mm picture")
-    parser.add_argument("-p","--pageid",default="30430",help = "specify the picture url id")
+    parser.add_argument("-p", "--pageid", default="30430", help="specify the picture url id")
     args = parser.parse_args()
     url = get_fullurl_from_abbrev(args.pageid)
-    title,iterpics,taglist = get_mmpicset_info_from_url(url)
+    title, iterpics, taglist = get_mmpicset_info_from_url(url)
     print(title)
     print(taglist)
     if not os.path.exists(title):
         os.makedirs(title)
 
-    for i,pic in enumerate(iterpics):
-        filename = os.path.join(title,"%02d.jpg"%(i + 1))
+    for i, pic in enumerate(iterpics):
+        filename = os.path.join(title, "%02d.jpg" % (i + 1))
         print(pic + " ==> " + filename)
-        write_file(pic,filename)
+        write_file(pic, filename)
+
+if __name__ == "__main__":
+    test()
+
 
 
 
