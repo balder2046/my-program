@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import re
+import mmsitedao
 def write_file(url,filename):
     buffer = urlopen(url).read()
     with open(filename,"wb") as fp:
@@ -108,22 +109,57 @@ def get_tags(content):
     """
     pass
 
+def parse_overview(bsobj):
+    # all album nodes
+    nodes = bsobj.find_all(class_="item masonry_brick")
+    for node in nodes:
+        # get the thumb url
+        thumburl = node.find('img').get('data-original')
+        # get the title
+        titlenode = node.find(class_='title').find('a')
+        title = titlenode.text
+        # get the url
+        url = titlenode.get('href')
+        # get the tags
+        tags = [tagnode.text for tagnode in node.find_all(class_='blue')]
+        notext = node.find(class_='items_likes').text
+        regex = re.compile("共(%d+)张")
+        match = regex.search(notext)
+        piccount = int(match.group(1))
 
-if __name__ == "__main__":
+
+
+    pass
+def testdatabase():
+    database = mmsitedao.PictureDatabase("test1.db")
+    dao = mmsitedao.AlbumSummeryDao(database)
+    pass
+def testparse():
+    fp = open("bigmenu.html",'rt',encoding='utf-8')
+    pass
+def test():
+    pass
+
+def main():
     parser = argparse.ArgumentParser(description="download the mm picture")
-    parser.add_argument("-p","--pageid",default="30430",help = "specify the picture url id")
+    parser.add_argument("-p", "--pageid", default="30430", help="specify the picture url id")
     args = parser.parse_args()
     url = get_fullurl_from_abbrev(args.pageid)
-    title,iterpics,taglist = get_mmpicset_info_from_url(url)
+    title, iterpics, taglist = get_mmpicset_info_from_url(url)
     print(title)
     print(taglist)
     if not os.path.exists(title):
         os.makedirs(title)
 
-    for i,pic in enumerate(iterpics):
-        filename = os.path.join(title,"%02d.jpg"%(i + 1))
+    for i, pic in enumerate(iterpics):
+        filename = os.path.join(title, "%02d.jpg" % (i + 1))
         print(pic + " ==> " + filename)
-        write_file(pic,filename)
+        write_file(pic, filename)
+    pass
+
+
+if __name__ == "__main__":
+    test()
 
 
 
