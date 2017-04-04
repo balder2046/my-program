@@ -122,9 +122,9 @@ def test():
     # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
     database = mmsitedao.PictureDatabase('album.db')
     albumdao = mmsitedao.AlbumSummeryDao(database)
-    for i in range(1,502):
+    for i in range(1,165):
         print("parse page %d" % i)
-        url = "https://www.aitaotu.com/guonei/list_%d.html" % i
+        url = "https://www.aitaotu.com/rihan/list_%d.html" % i
         htmldoc = get_html_content(url)
         bsobj = BeautifulSoup(htmldoc)
         parse_summery(bsobj,albumdao)
