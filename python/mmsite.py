@@ -99,46 +99,35 @@ def get_mmpicset_info_from_url(url):
     tags = parse_tags(bsobj)
     return (title,iterpage,tags)
 
-
-
-def get_tags(content):
-    """
-
-    :param content:
-    :return:
-    """
-    pass
-
-def parse_overview(bsobj):
-    # all album nodes
-    nodes = bsobj.find_all(class_="item masonry_brick")
+def parse_summery(bsobj,albumdao):
+    #title
+    #url
+    #thumb url
+    # tags
+    nodes = bsobj.find_all(class_='item masonry_brick')
     for node in nodes:
-        # get the thumb url
-        thumburl = node.find('img').get('data-original')
-        # get the title
-        titlenode = node.find(class_='title').find('a')
-        title = titlenode.text
-        # get the url
-        url = titlenode.get('href')
-        # get the tags
-        tags = [tagnode.text for tagnode in node.find_all(class_='blue')]
-        notext = node.find(class_='items_likes').text
-        regex = re.compile("共(%d+)张")
-        match = regex.search(notext)
-        piccount = int(match.group(1))
+        title = node.find(class_='title').find('a').text
+        url = node.find(class_='img').find('a').get('href')
+        thumburl = node.find(class_='img').find('img').get('data-original')
 
+        print ("title : %s" % title)
+        print ("url : %s" % url)
+        print("thumburl : %s" % thumburl)
+        if not albumdao.is_album_exist(url):
+            albumdao.add_album(title,url,thumburl)
+        print("\n")
+    pass
 
-
-    pass
-def testdatabase():
-    database = mmsitedao.PictureDatabase("test1.db")
-    dao = mmsitedao.AlbumSummeryDao(database)
-    pass
-def testparse():
-    fp = open("bigmenu.html",'rt',encoding='utf-8')
-    pass
 def test():
-    pass
+    # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
+    database = mmsitedao.PictureDatabase('album.db')
+    albumdao = mmsitedao.AlbumSummeryDao(database)
+    for i in range(1,165):
+        print("parse page %d" % i)
+        url = "https://www.aitaotu.com/rihan/list_%d.html" % i
+        htmldoc = get_html_content(url)
+        bsobj = BeautifulSoup(htmldoc)
+        parse_summery(bsobj,albumdao)
 
 def main():
     parser = argparse.ArgumentParser(description="download the mm picture")
@@ -155,11 +144,10 @@ def main():
         filename = os.path.join(title, "%02d.jpg" % (i + 1))
         print(pic + " ==> " + filename)
         write_file(pic, filename)
-    pass
-
 
 if __name__ == "__main__":
     test()
+
 
 
 
