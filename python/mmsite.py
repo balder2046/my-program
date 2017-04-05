@@ -99,35 +99,69 @@ def get_mmpicset_info_from_url(url):
     tags = parse_tags(bsobj)
     return (title,iterpage,tags)
 
-def parse_summery(bsobj,albumdao):
+
+class AlreadyParseException(Exception):
+    def __init__(self,message):
+        Exception.__init__(self,message)
+
+def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
     #title
     #url
     #thumb url
     # tags
+    dryrun = False
+    if 'dryrun' in kwargs and kwargs['dryrun'] == True:
+        dryrun = True
     nodes = bsobj.find_all(class_='item masonry_brick')
     for node in nodes:
         title = node.find(class_='title').find('a').text
         url = node.find(class_='img').find('a').get('href')
         thumburl = node.find(class_='img').find('img').get('data-original')
-
+        tags = [tagnode.text for tagnode in node.find_all(class_='blue')]
+        notext = node.find(class_='items_likes').text
+        regex = re.compile("共(\\d+)张")
+        print(notext)
+        match = regex.search(notext)
+        piccount = int(match.group(1))
         print ("title : %s" % title)
         print ("url : %s" % url)
         print("thumburl : %s" % thumburl)
+        print("tags : %s" % tags.__str__())
+        print("page : %d" % piccount)
         if not albumdao.is_album_exist(url):
-            albumdao.add_album(title,url,thumburl)
+            dupcount = 0
+            if not dryrun:
+                albumdao.add_album(title,url,thumburl,piccount)
+            for tag in tags:
+                if not tagdao.is_tag_exist(url,tag):
+                    if not dryrun:
+                        tagdao.insert_tag(url,tag)
+        else:
+            dupcount = dupcount + 1
+            if dupcount >= dupmax:
+                raise AlreadyParseException("dupmaxreached")
         print("\n")
+    return dupcount
     pass
 
 def test():
     # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
     database = mmsitedao.PictureDatabase('album.db')
     albumdao = mmsitedao.AlbumSummeryDao(database)
-    for i in range(1,165):
+    tagdao = mmsitedao.AlbumTagsDao(database)
+    dupcount = 0
+    dupmax = 9999999
+    for i in range(1,503):
         print("parse page %d" % i)
-        url = "https://www.aitaotu.com/rihan/list_%d.html" % i
+        url = "https://www.aitaotu.com/guonei/list_%d.html" % i
         htmldoc = get_html_content(url)
         bsobj = BeautifulSoup(htmldoc)
-        parse_summery(bsobj,albumdao)
+        try:
+            dupcount = parse_summery(bsobj,albumdao,tagdao,0,dupmax)
+        except AlreadyParseException as e:
+            print("Found duplication at page %d" % i)
+            break
+
 
 def main():
     parser = argparse.ArgumentParser(description="download the mm picture")
