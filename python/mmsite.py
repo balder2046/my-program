@@ -150,7 +150,7 @@ def test():
     albumdao = mmsitedao.AlbumSummeryDao(database)
     tagdao = mmsitedao.AlbumTagsDao(database)
     dupcount = 0
-    dupmax = 9999999
+    dupmax = 3
     for i in range(1,503):
         print("parse page %d" % i)
         url = "https://www.aitaotu.com/guonei/list_%d.html" % i

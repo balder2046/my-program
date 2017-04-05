@@ -95,6 +95,7 @@ class OutputLogWidget(Frame):
 class MainApp(Tk):
     def __init__(self, *args, **kwargs):
         Tk.__init__(self, *args, **kwargs)
+        self.minsize(400,300)
         self.initcontrols()
         # self.bind("<FocusIn>", self.app_got_focus)
         # self.bind("<FocusOut>", self.app_lost_focus)
@@ -145,7 +146,7 @@ class MainApp(Tk):
         frame_command.pack(side='top',fill=X)
         Label(self,text= OUTPUT_LABEL_STRING).pack(side='top',fill=NONE,anchor='nw',pady = 10)
         self.text = OutputLogWidget(self)
-        self.text.pack(side='top',fill=X,expand=YES,padx = 5,pady = 5)
+        self.text.pack(side='top',fill=BOTH,expand=YES,padx = 5,pady = 5)
 
 
         pass
@@ -171,5 +172,5 @@ class MainApp(Tk):
 
 
 app = MainApp()
-
+app.geometry('800x600+100+100')
 app.mainloop()
