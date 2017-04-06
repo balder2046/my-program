@@ -54,7 +54,16 @@ def parse_pics(bsobj):
     picurls = [img.get('src') for img in pics_node.find_all('img')]
     return picurls
 
-
+def parse_pic_baseurl(bsobj):
+    pics_node = bsobj.find(id='big-pic')
+    picurls = [img.get('src') for img in pics_node.find_all('img')]
+    regex = re.compile('(.*/)\\d+\\.jpg$')
+    last = None
+    baseurl = ""
+    for url in picurls:
+        match = regex.search(url)
+        baseurl = match.group(1)
+    return baseurl
 
 def get_page_iter(bsobj):
     """
@@ -109,6 +118,7 @@ def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
     #url
     #thumb url
     # tags
+    print("first dup %d" % dupcount)
     dryrun = False
     if 'dryrun' in kwargs and kwargs['dryrun'] == True:
         dryrun = True
@@ -129,6 +139,7 @@ def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
         print("tags : %s" % tags.__str__())
         print("page : %d" % piccount)
         if not albumdao.is_album_exist(url):
+            print("not found ")
             dupcount = 0
             if not dryrun:
                 albumdao.add_album(title,url,thumburl,piccount)
@@ -138,11 +149,32 @@ def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
                         tagdao.insert_tag(url,tag)
         else:
             dupcount = dupcount + 1
+            print("Found Dup!!!!!!!!!!!!!!!!" + "%d" % dupcount)
             if dupcount >= dupmax:
                 raise AlreadyParseException("dupmaxreached")
         print("\n")
     return dupcount
     pass
+def parse_and_write_pictureurl_byurl(url,picturedao):
+    htmldoc = urlopen(url).read().decode('utf-8')
+    bsobj = BeautifulSoup(htmldoc)
+    parse_and_write_pictureurl(url,bsobj,picturedao)
+def parse_and_write_pictureurl(url,bsobj,picturedao):
+    urlbase = parse_pic_baseurl(bsobj)
+    picturedao.insert_urlbase(url,urlbase)
+
+dupmax = 5
+
+def fill_urlbase_from_database():
+    database = mmsitedao.PictureDatabase('album.db')
+    albumdao = mmsitedao.AlbumSummeryDao(database)
+    picturedao = mmsitedao.AlbumPicturesDao(database)
+
+    for row,album in enumerate(albumdao.get_all()):
+        print("index :%05d max %.2f" % (row,float(row)/13072.0))
+        print("title: " + album[1])
+        print("url: " + album[2])
+        parse_and_write_pictureurl_byurl("http://www.aitaotu.com" + album[2],picturedao)
 
 def test():
     # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
@@ -150,8 +182,8 @@ def test():
     albumdao = mmsitedao.AlbumSummeryDao(database)
     tagdao = mmsitedao.AlbumTagsDao(database)
     dupcount = 0
-    dupmax = 3
-    for i in range(1,503):
+
+    for i in range(1,66):
         print("parse page %d" % i)
         url = "https://www.aitaotu.com/guonei/list_%d.html" % i
         htmldoc = get_html_content(url)
@@ -160,6 +192,7 @@ def test():
             dupcount = parse_summery(bsobj,albumdao,tagdao,0,dupmax)
         except AlreadyParseException as e:
             print("Found duplication at page %d" % i)
+
             break
 
 
@@ -180,7 +213,8 @@ def main():
         write_file(pic, filename)
 
 if __name__ == "__main__":
-    test()
+    # test()
+    fill_urlbase_from_database()
 
 
 
