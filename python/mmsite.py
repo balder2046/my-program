@@ -57,7 +57,7 @@ def parse_pics(bsobj):
 def parse_pic_baseurl(bsobj):
     pics_node = bsobj.find(id='big-pic')
     picurls = [img.get('src') for img in pics_node.find_all('img')]
-    regex = re.compile('(.*/)\\d+\\.jpg$')
+    regex = re.compile('(.*)\\d{2,3}\\.jpg$')
     last = None
     baseurl = ""
     for url in picurls:
@@ -156,7 +156,12 @@ def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
     return dupcount
     pass
 def parse_and_write_pictureurl_byurl(url,picturedao):
-    htmldoc = urlopen(url).read().decode('utf-8')
+    fullurl = "http://www.aitaotu.com" + url
+    if picturedao.is_url_exist(url):
+        print("Pass ***")
+        return
+
+    htmldoc = urlopen(fullurl).read().decode('utf-8')
     bsobj = BeautifulSoup(htmldoc)
     parse_and_write_pictureurl(url,bsobj,picturedao)
 def parse_and_write_pictureurl(url,bsobj,picturedao):
@@ -173,9 +178,14 @@ def fill_urlbase_from_database():
     for row,album in enumerate(albumdao.get_all()):
         print("index :%05d max %.2f" % (row,float(row)/13072.0))
         print("title: " + album[1])
-        print("url: " + album[2])
-        parse_and_write_pictureurl_byurl("http://www.aitaotu.com" + album[2],picturedao)
+        print("url: http://www.aitaotu.com" + album[2])
+        parse_and_write_pictureurl_byurl(album[2],picturedao)
 
+def modifyurlbase():
+    database = mmsitedao.PictureDatabase('album.db')
+    albumdao = mmsitedao.AlbumSummeryDao(database)
+    picturedao = mmsitedao.AlbumPicturesDao(database)
+    picturedao.reduce_url()
 def test():
     # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
     database = mmsitedao.PictureDatabase('album.db')
@@ -215,6 +225,7 @@ def main():
 if __name__ == "__main__":
     # test()
     fill_urlbase_from_database()
+    #modifyurlbase()
 
 
 

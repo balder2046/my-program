@@ -11,6 +11,8 @@ class AlbumPicturesDao:
     SQL_QUERY_URLBASE_EXIST = 'select id from pictures where url = ?'
     SQL_QUERY_URLBASE = 'select url from pictures where url = ?'
     SQL_INSERT_URLBASE = 'insert into pictures(url,urlbase) values(?,?)'
+    SQL_UPDATE_URL = 'update pictures set url = ? where id = ? '
+    SQL_UPDATE_URLBASE = 'update pictures set urlbase = ? where id = ? '
     def __init__(self,database):
         self.conn = database.conn
         self.cursor = self.conn.cursor()
@@ -26,6 +28,24 @@ class AlbumPicturesDao:
             self.cursor.execute(self.SQL_INSERT_URLBASE,(url,urlbase))
             self.conn.commit()
         pass
+    def reduce_url(self):
+        self.cursor.execute("select id,url,urlbase from pictures")
+        updatecursor = self.conn.cursor()
+        pics = self.cursor.fetchone()
+        while pics is not None:
+            id = pics[0]
+            url = pics[1]
+            urlbase = pics[2]
+            print(url)
+            newurl = url.replace('http://www.aitaotu.com','')
+            updatecursor.execute(AlbumPicturesDao.SQL_UPDATE_URL,(newurl,id))
+            self.conn.commit()
+            if urlbase[-1] == '0':
+                newurlbase = urlbase[:-1]
+                updatecursor.execute(AlbumPicturesDao.SQL_UPDATE_URLBASE, ( newurlbase,id))
+                self.conn.commit()
+            pics = self.cursor.fetchone()
+
 
 class AlbumTagsDao:
     SQL_CREATE_TABLE = 'create table if not exists album_tag(id integer PRIMARY key autoincrement,url text not null,tag text not null);'
