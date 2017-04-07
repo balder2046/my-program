@@ -114,7 +114,7 @@ class AlreadyParseException(Exception):
     def __init__(self,message):
         Exception.__init__(self,message)
 
-def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
+def parse_summery(bsobj,albumdao,tagdao,picturedao,dupcount,dupmax,**kwargs):
     #title
     #url
     #thumb url
@@ -123,6 +123,9 @@ def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
     dryrun = False
     if 'dryrun' in kwargs and kwargs['dryrun'] == True:
         dryrun = True
+    detail = False
+    if 'detail' in kwargs and kwargs['detail'] == True:
+        detail = True
     nodes = bsobj.find_all(class_='item masonry_brick')
     for node in nodes:
         title = node.find(class_='title').find('a').text
@@ -148,6 +151,11 @@ def parse_summery(bsobj,albumdao,tagdao,dupcount,dupmax,**kwargs):
                 if not tagdao.is_tag_exist(url,tag):
                     if not dryrun:
                         tagdao.insert_tag(url,tag)
+            if not dryrun:
+                if detail:
+                    parse_and_write_pictureurl_byurl(url,picturedao)
+
+
         else:
             dupcount = dupcount + 1
             print("Found Dup!!!!!!!!!!!!!!!!" + "%d" % dupcount)
@@ -188,11 +196,32 @@ def modifyurlbase():
     albumdao = mmsitedao.AlbumSummeryDao(database)
     picturedao = mmsitedao.AlbumPicturesDao(database)
     picturedao.reduce_url()
+
+def updatesite():
+    database = mmsitedao.PictureDatabase('album.db')
+    albumdao = mmsitedao.AlbumSummeryDao(database)
+    tagdao = mmsitedao.AlbumTagsDao(database)
+    picturedao = mmsitedao.AlbumPicturesDao(database)
+    dupcount = 0
+    kinds = ['guonei','rihan','meinv','gangtai']
+    for kind in kinds:
+        for i in range(1, 3):
+            print("parse page %d" % i)
+            url = "https://www.aitaotu.com/%s/list_%d.html" % (kind,i)
+            htmldoc = get_html_content(url)
+            bsobj = BeautifulSoup(htmldoc)
+            try:
+                dupcount = parse_summery(bsobj, albumdao, tagdao,picturedao, 0, dupmax,detail=True)
+            except AlreadyParseException as e:
+                print("Found duplication at page %d" % i)
+                break
+        pass
 def test():
     # htmldoc = get_html_content("https://www.aitaotu.com/guonei/")
     database = mmsitedao.PictureDatabase('album.db')
     albumdao = mmsitedao.AlbumSummeryDao(database)
     tagdao = mmsitedao.AlbumTagsDao(database)
+    picturedao = mmsitedao.AlbumPicturesDao(database)
     dupcount = 0
 
     for i in range(1,66):
@@ -201,10 +230,9 @@ def test():
         htmldoc = get_html_content(url)
         bsobj = BeautifulSoup(htmldoc)
         try:
-            dupcount = parse_summery(bsobj,albumdao,tagdao,0,dupmax)
+            dupcount = parse_summery(bsobj,albumdao,tagdao,picturedao,0,dupmax)
         except AlreadyParseException as e:
             print("Found duplication at page %d" % i)
-
             break
 
 
@@ -226,8 +254,9 @@ def main():
 
 if __name__ == "__main__":
     # test()
-    fill_urlbase_from_database()
+    # fill_urlbase_from_database()
     #modifyurlbase()
+    updatesite()
 
 
 
