@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import picturemanager
 class PictureDatabase:
 
     def __init__(self,dbpath):
@@ -73,6 +74,8 @@ class AlbumSummeryDao:
     SQL_INSERT_ALBUM = 'insert into album_summery(title,url,thumburl,piccount) values(?,?,?,?)'
     SQL_QUERY_ALBUM_EXIST = 'select id from album_summery where url = ?'
     SQL_ALL_QUERY_ALBUM = 'select * from album_summery'
+    SQL_ALL_QUERY_ALBUM_DETAILS = "select album_summery.id,title,album_summery.url,thumburl,piccount,urlbase from album_summery ,pictures where album_summery.url = pictures.url "
+    SQL_ALL_QUERY_ALBUM_TAGS = "select tag  from album_tag where url = ?"
     def __init__(self,database):
         self.database = database
         self.conn = database.conn
@@ -85,11 +88,30 @@ class AlbumSummeryDao:
         self.conn.commit()
 
     def is_album_exist(self,url):
-        print(type(url))
+
         self.cursor.execute(AlbumSummeryDao.SQL_QUERY_ALBUM_EXIST,(url,))
         res = self.cursor.fetchone()
         return res is not None
 
+    def all_picture_details(self):
+        self.cursor.execute(AlbumSummeryDao.SQL_ALL_QUERY_ALBUM_DETAILS)
+        res = self.cursor.fetchone()
+        albums = []
+        while res is not None:
+            album = picturemanager.Album(res[0],res[1],res[2],res[3],res[4],res[5])
+            albums.append(album)
+            res = self.cursor.fetchone()
+
+        # for every album ,prepare tags
+        for album in albums:
+            self.cursor.execute(AlbumSummeryDao.SQL_ALL_QUERY_ALBUM_TAGS,(album.url,))
+            res = self.cursor.fetchone()
+            tags = []
+            while res is not None:
+                tags.append(res[0])
+                res = self.cursor.fetchone()
+            album.set_tags(tags)
+        pass
     def get_all(self):
         self.cursor.execute(AlbumSummeryDao.SQL_ALL_QUERY_ALBUM)
         result = self.cursor.fetchone()

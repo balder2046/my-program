@@ -62,6 +62,7 @@ def parse_pic_baseurl(bsobj):
     baseurl = ""
     for url in picurls:
         match = regex.search(url)
+        if match is None: return None
         baseurl = match.group(1)
     return baseurl
 
@@ -166,7 +167,8 @@ def parse_and_write_pictureurl_byurl(url,picturedao):
     parse_and_write_pictureurl(url,bsobj,picturedao)
 def parse_and_write_pictureurl(url,bsobj,picturedao):
     urlbase = parse_pic_baseurl(bsobj)
-    picturedao.insert_urlbase(url,urlbase)
+    if urlbase is not None:
+        picturedao.insert_urlbase(url,urlbase)
 
 dupmax = 5
 
