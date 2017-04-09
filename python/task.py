@@ -96,7 +96,9 @@ class TaskManager:
             for i in range(nownum,num):
                 wrapper = TaskManager._ThreadWrapper(self.async_queues)
 
-                threading.Thread(None,wrapper.run).start()
+                thread = threading.Thread(None,wrapper.run)
+                thread.setDaemon(True)
+                thread.start()
 
                 self.threadwrappers.append(wrapper)
 
@@ -109,7 +111,9 @@ class TaskManager:
     def create_async_queue(self,name):
         taskqueue = TaskQueue()
         wrapper = TaskManager._ThreadWrapper(taskqueue)
-        threading.Thread(None,wrapper.run,name).start()
+        thread = threading.Thread(None,wrapper.run,name)
+        thread.setDaemon(True)
+        thread.start()
         self.name_async_queues[name] = wrapper
 
     def add_main_task(self,func):

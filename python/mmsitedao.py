@@ -115,7 +115,6 @@ class AlbumSummeryDao:
             while res is not None:
                 tags.append(res[0])
                 index +=1
-                print(index)
                 res = self.cursor.fetchone()
             album.set_tags(tags)
         return albums

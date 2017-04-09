@@ -34,7 +34,6 @@ class Album:
                 logger("%s 已经存在" % self.title)
                 progressinfo(self.piccount)
             return
-        print(dir(os))
         os.makedirs(fullpath)
         if logger is not None:
             logger("开始下载 %s " % self.title)

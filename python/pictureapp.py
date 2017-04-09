@@ -113,9 +113,7 @@ class MainApp(Tk):
         self.albumdao = mmsitedao.AlbumSummeryDao(database)
         self.tagdao = mmsitedao.AlbumTagsDao(database)
         self.picturedao = mmsitedao.AlbumPicturesDao(database)
-        print("get all")
         albums = self.albumdao.all_picture_details()
-        print("get all done")
         self.picturemanager.reload(albums)
         self.text.output_info("读取 %d 个图集" % len(albums))
 
@@ -163,11 +161,11 @@ class MainApp(Tk):
 
     def app_got_focus(self, event):
         # self.config(background="red")
-        print("app_got_focus")
+        pass
 
     def app_lost_focus(self, event):
         # self.config(background="grey")
-        print("app_lost_focus")
+        pass
 
     test_count = 0
 
