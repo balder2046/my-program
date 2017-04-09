@@ -88,20 +88,25 @@ class AlbumSummeryDao:
         self.conn.commit()
 
     def is_album_exist(self,url):
-
-        self.cursor.execute(AlbumSummeryDao.SQL_QUERY_ALBUM_EXIST,(url,))
-        res = self.cursor.fetchone()
+        cursor = self.conn.cursor()
+        cursor.execute(AlbumSummeryDao.SQL_QUERY_ALBUM_EXIST,(url,))
+        res = cursor.fetchone()
         return res is not None
 
     def all_picture_details(self):
         self.cursor.execute(AlbumSummeryDao.SQL_ALL_QUERY_ALBUM_DETAILS)
         res = self.cursor.fetchone()
         albums = []
+        index = 0
         while res is not None:
             album = picturemanager.Album(res[0],res[1],res[2],res[3],res[4],res[5])
             albums.append(album)
+            print(index)
+            index += 1
             res = self.cursor.fetchone()
-
+        print("get all album done")
+        print('get details')
+        return albums
         # for every album ,prepare tags
         for album in albums:
             self.cursor.execute(AlbumSummeryDao.SQL_ALL_QUERY_ALBUM_TAGS,(album.url,))
@@ -109,8 +114,11 @@ class AlbumSummeryDao:
             tags = []
             while res is not None:
                 tags.append(res[0])
+                index +=1
+                print(index)
                 res = self.cursor.fetchone()
             album.set_tags(tags)
+        return albums
         pass
     def get_all(self):
         self.cursor.execute(AlbumSummeryDao.SQL_ALL_QUERY_ALBUM)

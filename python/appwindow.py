@@ -137,6 +137,7 @@ class MainApp(Tk):
         # add a command entry
         # add a run command
         # add the output method
+
         frame_command = Frame(self)
         Label(frame_command,text=COMMAND_LABEL_STRING).pack(side='left',fill=NONE)
         commandEntry = Entry(frame_command)
@@ -146,7 +147,8 @@ class MainApp(Tk):
         frame_command.pack(side='top',fill=X)
         Label(self,text= OUTPUT_LABEL_STRING).pack(side='top',fill=NONE,anchor='nw',pady = 10)
         self.text = OutputLogWidget(self)
-        self.text.pack(side='top',fill=BOTH,expand=YES,padx = 5,pady = 5)
+        self.text.pack(side='top',fill=BOTH,expand=NO,padx = 5,pady = 5)
+
 
 
         pass

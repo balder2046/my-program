@@ -197,23 +197,28 @@ def modifyurlbase():
     picturedao = mmsitedao.AlbumPicturesDao(database)
     picturedao.reduce_url()
 
-def updatesite():
+def test_updatesite():
     database = mmsitedao.PictureDatabase('album.db')
     albumdao = mmsitedao.AlbumSummeryDao(database)
     tagdao = mmsitedao.AlbumTagsDao(database)
     picturedao = mmsitedao.AlbumPicturesDao(database)
+
+    updatesite(albumdao,tagdao,picturedao,print)
+
+def updatesite(albumdao,tagdao,picturedao,logger):
+
     dupcount = 0
     kinds = ['guonei','rihan','meinv','gangtai']
     for kind in kinds:
         for i in range(1, 3):
-            print("parse page %d" % i)
+            logger("parse page %d" % i)
             url = "https://www.aitaotu.com/%s/list_%d.html" % (kind,i)
             htmldoc = get_html_content(url)
             bsobj = BeautifulSoup(htmldoc)
             try:
                 dupcount = parse_summery(bsobj, albumdao, tagdao,picturedao, 0, dupmax,detail=True)
             except AlreadyParseException as e:
-                print("Found duplication at page %d" % i)
+                logger("%s Found duplication at page %d, stop!!!!" % (kind,i))
                 break
         pass
 def test():
@@ -256,7 +261,7 @@ if __name__ == "__main__":
     # test()
     # fill_urlbase_from_database()
     #modifyurlbase()
-    updatesite()
+    test_updatesite()
 
 
 
