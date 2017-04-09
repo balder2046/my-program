@@ -101,7 +101,6 @@ class AlbumSummeryDao:
         while res is not None:
             album = picturemanager.Album(res[0],res[1],res[2],res[3],res[4],res[5])
             albums.append(album)
-            print(index)
             index += 1
             res = self.cursor.fetchone()
         print("get all album done")
