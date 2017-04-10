@@ -7,6 +7,8 @@ import mmsitedao
 import mmsite
 import task
 import picturemanager
+from PIL import Image
+from PIL import ImageTk
 
 COMMAND_LABEL_STRING = '下载地址'
 COMMAND_BUTTON_STRING = '下载'
@@ -180,8 +182,34 @@ class MainApp(Tk):
         self.listbox.items[index] = text
         self.listvar.set(tuple(self.listbox.items))
 
+    def show_dialog(self):
+        top = Toplevel(self)
+        top.geometry('1280x900+100+100')
+        image = Image.open("06.jpg")
+        print(image.size)
+        newsize = (1280, int(1280* image.size[1]/float(image.size[0])))
+        image = image.resize(newsize)
+        imagetk = ImageTk.PhotoImage(image)
+       # self.picturelabel = Label(top,image=imagetk).pack(side='top',expand= YES,fill=BOTH)
+        canvas = Canvas(top)
 
+        canvas.create_image((0,0),anchor=NW,image=imagetk)
+        print(canvas.bbox("all"))
+        canvas.configure(scrollregion=canvas.bbox("all"))
+        canvas.pack(side=LEFT,expand=YES,fill=BOTH)
+        S1 = Scrollbar(canvas, orient='vertical', command=canvas.yview)
+        canvas['yscrollcommand'] = S1.set
+        S1.pack(side=RIGHT, fill=Y)
+        canvas.focus_get()
+        canvas.bind("<ButtonPress-2>", lambda event:canvas.scan_mark(event.x,event.y))
+        canvas.bind("<MouseWheel>", lambda event:canvas.yview_scroll(int(-0.9 * event.delta),'units'))
+        top.transient(self)
+        top.grab_set()
+
+        self.wait_window(top)
+        print("windows close")
     def on_download(self):
+        self.show_dialog()
         text = self.downloadentry.get()
         if len(text) == 0: return
         text = text.replace("https://www.aitaotu.com", "")
