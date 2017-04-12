@@ -126,6 +126,9 @@ def parse_summery(bsobj,albumdao,tagdao,picturedao,dupcount,dupmax,**kwargs):
     detail = False
     if 'detail' in kwargs and kwargs['detail'] == True:
         detail = True
+    logger = None
+    if 'logger' in kwargs:
+        logger = kwargs['logger']
     nodes = bsobj.find_all(class_='item masonry_brick')
     for node in nodes:
         title = node.find(class_='title').find('a').text
@@ -144,6 +147,8 @@ def parse_summery(bsobj,albumdao,tagdao,picturedao,dupcount,dupmax,**kwargs):
         print("page : %d" % piccount)
         if not albumdao.is_album_exist(url):
             print("not found ")
+            if logger is not None:
+                logger("found new album %s " % title)
             dupcount = 0
             if not dryrun:
                 albumdao.add_album(title,url,thumburl,piccount)
@@ -216,7 +221,7 @@ def updatesite(albumdao,tagdao,picturedao,logger):
             htmldoc = get_html_content(url)
             bsobj = BeautifulSoup(htmldoc)
             try:
-                dupcount = parse_summery(bsobj, albumdao, tagdao,picturedao, 0, dupmax,detail=True)
+                dupcount = parse_summery(bsobj, albumdao, tagdao,picturedao, 0, dupmax,detail=True,logger = logger)
             except AlreadyParseException as e:
                 logger("%s Found duplication at page %d, stop!!!!" % (kind,i))
                 break

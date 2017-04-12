@@ -201,7 +201,7 @@ class MainApp(Tk):
         canvas['yscrollcommand'] = S1.set
         S1.pack(side=RIGHT, fill=Y)
         canvas.focus_get()
-        canvas.bind("<ButtonPress-2>", lambda event:canvas.scan_mark(event.x,event.y))
+
         canvas.bind("<MouseWheel>", lambda event:canvas.yview_scroll(int(-0.9 * event.delta),'units'))
         top.transient(self)
         top.grab_set()
@@ -209,7 +209,7 @@ class MainApp(Tk):
         self.wait_window(top)
         print("windows close")
     def on_download(self):
-        self.show_dialog()
+        # self.show_dialog()
         text = self.downloadentry.get()
         if len(text) == 0: return
         text = text.replace("https://www.aitaotu.com", "")
