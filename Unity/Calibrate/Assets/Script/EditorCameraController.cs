@@ -14,6 +14,8 @@ public class EditorCameraController : MonoBehaviour
     void Start()
     {
         camera = GetComponent<Camera>();
+        int version = Plugins.GetOpenCVVersion();
+        Debug.Log("the version is " + version);
     }
 	
     // Update is called once per frame

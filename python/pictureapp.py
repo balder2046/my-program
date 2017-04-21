@@ -145,12 +145,13 @@ class MainApp(Tk):
         listbox.pack(side='top', fill=BOTH, expand=YES, padx=5, pady=5)
         listbox.items = []
         listbox.filepaths = []
+
         def openfolder(event):
             cur = self.listbox.curselection()
             paths = self.listbox.filepaths
-            os.system("open '%s'" % paths[cur[0]] )
-    
-        listbox.bind('<Double-Button-1>',openfolder)
+            os.system("open '%s'" % paths[cur[0]])
+
+        listbox.bind('<Double-Button-1>', openfolder)
         self.listbox = listbox
         Label(self, text=OUTPUT_LABEL_STRING).pack(side='top', fill=NONE, anchor='nw', pady=10)
         self.text = OutputLogWidget(self)
@@ -187,27 +188,28 @@ class MainApp(Tk):
         top.geometry('1280x900+100+100')
         image = Image.open("06.jpg")
         print(image.size)
-        newsize = (1280, int(1280* image.size[1]/float(image.size[0])))
+        newsize = (1280, int(1280 * image.size[1] / float(image.size[0])))
         image = image.resize(newsize)
         imagetk = ImageTk.PhotoImage(image)
-       # self.picturelabel = Label(top,image=imagetk).pack(side='top',expand= YES,fill=BOTH)
+        # self.picturelabel = Label(top,image=imagetk).pack(side='top',expand= YES,fill=BOTH)
         canvas = Canvas(top)
 
-        canvas.create_image((0,0),anchor=NW,image=imagetk)
+        canvas.create_image((0, 0), anchor=NW, image=imagetk)
         print(canvas.bbox("all"))
         canvas.configure(scrollregion=canvas.bbox("all"))
-        canvas.pack(side=LEFT,expand=YES,fill=BOTH)
+        canvas.pack(side=LEFT, expand=YES, fill=BOTH)
         S1 = Scrollbar(canvas, orient='vertical', command=canvas.yview)
         canvas['yscrollcommand'] = S1.set
         S1.pack(side=RIGHT, fill=Y)
         canvas.focus_get()
 
-        canvas.bind("<MouseWheel>", lambda event:canvas.yview_scroll(int(-0.9 * event.delta),'units'))
+        canvas.bind("<MouseWheel>", lambda event: canvas.yview_scroll(int(-0.9 * event.delta), 'units'))
         top.transient(self)
         top.grab_set()
 
         self.wait_window(top)
         print("windows close")
+
     def on_download(self):
         # self.show_dialog()
         text = self.downloadentry.get()

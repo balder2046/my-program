@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.6)
+project(CalibratePlugin)
+
+set(CMAKE_CXX_STANDARD 11)
+set(OpenCV_DIR "/usr/local/opt/opencv3/share/OpenCV")
+FIND_PACKAGE(OpenCV REQUIRED)
+set(SOURCE_FILES library.cpp library.h)
+add_library(CalibratePlugin SHARED ${SOURCE_FILES})
+# target_link_libraries(CalibratePlugin ${OpenCV_LIBS})
+ADD_CUSTOM_COMMAND(TARGET CalibratePlugin POST_BUILD COMMAND cp libCalibratePlugin.dylib ../../../Assets/Plugins/libCalibratePlugin.bundle )
