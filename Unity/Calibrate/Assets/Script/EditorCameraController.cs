@@ -47,7 +47,10 @@ public class EditorCameraController : MonoBehaviour
             Vector3 rotateAngles = Vector3.zero;
             rotateAngles.x = -Input.GetAxis("Mouse Y") * rotateSpeed;
             rotateAngles.y = Input.GetAxis("Mouse X") * rotateSpeed;
-            transform.Rotate(rotateAngles, Space.Self);
+            //transform.Rotate(rotateAngles, Space.Self);
+            Vector3 oldRotate = transform.localEulerAngles;
+            oldRotate += rotateAngles;
+            transform.localEulerAngles = oldRotate;
 
         }
         if (Input.GetKeyDown(KeyCode.Space))

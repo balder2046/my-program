@@ -13,6 +13,7 @@ from PIL import ImageTk
 COMMAND_LABEL_STRING = '下载地址'
 COMMAND_BUTTON_STRING = '下载'
 UPDATE_BUTTON_STRING = '更新最新目录'
+TEMP_BUTTON_STRING = '临时功能'
 OUTPUT_LABEL_STRING = '下载输出:'
 TASK_LABEL_STRING = '任务输出:'
 
@@ -100,7 +101,7 @@ class MainApp(Tk):
         # Label(frame,text='D',bg='yellow').pack(side=LEFT,expand=NO,fill = Y)
 
     def inittaskmanager(self):
-        self.taskmanager = task.TaskManager(3)
+        self.taskmanager = task.TaskManager(4)
         self.taskmanager.create_async_queue(DATABASE_THREAD_NAME)
         self.taskmanager.add_name_task(DATABASE_THREAD_NAME, self.initdatabase)
         self.after(500, self.__update_main_tasks)
@@ -131,6 +132,8 @@ class MainApp(Tk):
         # add the output method
         btnUpdate = Button(self, text=UPDATE_BUTTON_STRING, command=self.updatesite)
         btnUpdate.pack(side=TOP)
+        btnTemp = Button(self,text=TEMP_BUTTON_STRING,command = self.tempfunction)
+        btnTemp.pack(side=LEFT)
         frame_command = Frame(self)
         Label(frame_command, text=COMMAND_LABEL_STRING).pack(side='left', fill=NONE)
         downloadentry = Entry(frame_command)
@@ -241,7 +244,27 @@ class MainApp(Tk):
                                        lambda: mmsite.updatesite(self.albumdao, self.tagdao, self.picturedao,
                                                                  self.text.output_info))
         pass
+    def tempfunction(self):
+        # page 1 - 509
+        def updatedate(infos):
+            for info in infos:
+                self.albumdao.set_uploaddate(info[0], info[1])
 
+        def updateuploaddate(urlbase,step,max,maxpage):
+            for i in range(1, maxpage + 1):
+                if (i % max) == step:
+                    fullurl = urlbase + "%d.html" % i;
+                    print("download fullurl " + fullurl)
+                    rets = mmsite.parese_uploaddate(fullurl)
+                    self.taskmanager.add_name_task(DATABASE_THREAD_NAME, lambda:updatedate(rets))
+        urlbase = "https://www.aitaotu.com/meinv/list_"
+        pagenum = 66
+        self.taskmanager.add_async_task(lambda :updateuploaddate(urlbase,0,4,pagenum))
+        self.taskmanager.add_async_task(lambda: updateuploaddate(urlbase, 1, 4, pagenum))
+        self.taskmanager.add_async_task(lambda: updateuploaddate(urlbase, 2, 4, pagenum))
+        self.taskmanager.add_async_task(lambda: updateuploaddate(urlbase, 3, 4, pagenum))
+
+        pass
 
 app = MainApp()
 app.geometry('800x600+100+100')

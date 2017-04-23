@@ -70,12 +70,13 @@ class AlbumTagsDao:
 
 class AlbumSummeryDao:
     SQL_CREATE_TABLE = 'create table if not exists album_summery(id INTEGER PRIMARY  KEY autoincrement,' \
-                       'title TEXT not null, url TEXT not null UNIQUE,thumburl TEXT not null ,piccount INTEGER)'
-    SQL_INSERT_ALBUM = 'insert into album_summery(title,url,thumburl,piccount) values(?,?,?,?)'
+                       'title TEXT not null, url TEXT not null UNIQUE,thumburl TEXT not null ,piccount INTEGER, uploadtime DATE DEFAULT NULL)'
+    SQL_INSERT_ALBUM = 'insert into album_summery(title,url,thumburl,piccount,uploadtime) values(?,?,?,?,?)'
     SQL_QUERY_ALBUM_EXIST = 'select id from album_summery where url = ?'
     SQL_ALL_QUERY_ALBUM = 'select * from album_summery'
     SQL_ALL_QUERY_ALBUM_DETAILS = "select album_summery.id,title,album_summery.url,thumburl,piccount,urlbase from album_summery ,pictures where album_summery.url = pictures.url "
     SQL_ALL_QUERY_ALBUM_TAGS = "select tag  from album_tag where url = ?"
+    SQL_UPDATE_DATE = 'update  album_summery set uploadtime = ? where url = ?'
     def __init__(self,database):
         self.database = database
         self.conn = database.conn
@@ -83,8 +84,12 @@ class AlbumSummeryDao:
         self.cursor.execute(AlbumSummeryDao.SQL_CREATE_TABLE)
         self.conn.commit()
         pass
-    def add_album(self,title,url,thumburl,piccount):
-        self.cursor.execute(AlbumSummeryDao.SQL_INSERT_ALBUM,(title,url,thumburl,piccount))
+    def add_album(self,title,url,thumburl,piccount,uploaddate):
+        self.cursor.execute(AlbumSummeryDao.SQL_INSERT_ALBUM,(title,url,thumburl,piccount,uploaddate))
+        self.conn.commit()
+
+    def set_uploaddate(self,url,uploaddate):
+        self.cursor.execute(AlbumSummeryDao.SQL_UPDATE_DATE,(uploaddate,url))
         self.conn.commit()
 
     def is_album_exist(self,url):

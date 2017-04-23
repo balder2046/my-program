@@ -4,6 +4,7 @@ import argparse
 import os
 import sys
 import re
+import time
 import mmsitedao
 def write_file(url,filename):
     buffer = urlopen(url).read()
@@ -114,6 +115,23 @@ class AlreadyParseException(Exception):
     def __init__(self,message):
         Exception.__init__(self,message)
 
+
+def parese_uploaddate(url):
+    htmldoc = urlopen(url).read().decode('utf-8')
+    bsobj = BeautifulSoup(htmldoc)
+    nodes = bsobj.find_all(class_='item masonry_brick')
+    ret = []
+    for node in nodes:
+        url = node.find(class_='img').find('a').get('href')
+        notext = node.find(class_='items_likes').text
+        dateregex = re.compile(r"DATE:(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})")
+       # uploaddate = time.strptime(dateregex.search(notext).group(1), "%Y-%m-%d %H:%M:%S")
+        uploaddate = dateregex.search(notext).group(1)
+        print(url)
+        print(uploaddate)
+        ret.append((url,uploaddate))
+    return ret
+
 def parse_summery(bsobj,albumdao,tagdao,picturedao,dupcount,dupmax,**kwargs):
     #title
     #url
@@ -137,21 +155,24 @@ def parse_summery(bsobj,albumdao,tagdao,picturedao,dupcount,dupmax,**kwargs):
         tags = [tagnode.text for tagnode in node.find_all(class_='blue')]
         notext = node.find(class_='items_likes').text
         regex = re.compile("共(\\d+)张")
+        dateregex = re.compile(r"DATE:(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2})")
         print(notext)
         match = regex.search(notext)
         piccount = int(match.group(1))
+        uploaddate = dateregex.search(notext).group(1)
         print ("title : %s" % title)
         print ("url : %s" % url)
         print("thumburl : %s" % thumburl)
         print("tags : %s" % tags.__str__())
         print("page : %d" % piccount)
+        print("date : %s" % uploaddate.__str__())
         if not albumdao.is_album_exist(url):
             print("not found ")
             if logger is not None:
                 logger("found new album %s " % title)
             dupcount = 0
             if not dryrun:
-                albumdao.add_album(title,url,thumburl,piccount)
+                albumdao.add_album(title,url,thumburl,piccount,uploaddate)
             for tag in tags:
                 if not tagdao.is_tag_exist(url,tag):
                     if not dryrun:

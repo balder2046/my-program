@@ -19,7 +19,7 @@ public class Plugins : MonoBehaviour
     }
 
 
-    [DllImport("UnityPlugin", EntryPoint = "GetOpenCVVersion" 
+    [DllImport("CalibratePlugin", EntryPoint = "GetOpenCVVersion" 
     )]
     static public extern int GetOpenCVVersion();
 }

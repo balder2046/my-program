@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include "library.h"
-/*
+
 #include "opencv2/core/core.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "library.h"
@@ -75,7 +75,7 @@ void DeleteImage(int imageid) {
         m_ImageMap.erase(iter_find);
     }
 }
-*/
+
 int GetOpenCVVersion() {
-    return 30;
+    return 32;
 }
