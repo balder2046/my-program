@@ -43,6 +43,7 @@ public class RenderScreenToTexture : MonoBehaviour
         newText.ReadPixels(new Rect(0, 0, width, height), 0, 0);
         newText.Apply();
         RenderTexture.active = null;
+		Color32[] buf = newText.GetPixels32 ();
 
         GameObject.Destroy(camObj);
         return newText;

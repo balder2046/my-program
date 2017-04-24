@@ -58,6 +58,9 @@ public class EditorCameraController : MonoBehaviour
             Texture2D tex = SnapScreenToTexture();
             byte[] buffer = tex.EncodeToJPG();
             System.IO.File.WriteAllBytes("test.jpg", buffer);
+			Color32[] buf = tex.GetPixels32 ();
+			int result = Plugins.CreateImage (buf, tex.width, tex.height);
+			Debug.Log ("the result is " + result);
         }
     }
 
