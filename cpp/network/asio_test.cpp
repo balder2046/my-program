@@ -7,6 +7,7 @@
 #include "iostream"
 using namespace boost;
 
+
 boost::asio::ip::tcp::endpoint EndPointFromIP(std::string ip, unsigned short port, boost::system::error_code &ec)
 {
 
@@ -55,4 +56,25 @@ int connect_test()
     }
     return 0;
 
+}
+
+int dnsresolve_test() {
+    std::string dnsname = "www.aitaotu.com";
+    std::string port = "80";
+
+    asio::io_service service;
+    asio::ip::tcp::resolver::query resolver_query(dnsname, port, asio::ip::tcp::resolver::query::numeric_service);
+    asio::ip::tcp::resolver resolver(service);
+    boost::system::error_code ec;
+    asio::ip::tcp::resolver::iterator iter = resolver.resolve(resolver_query, ec);
+    if (ec.value()) {
+        std::cout << "DNS query Failed. errorcode : " << ec.value() << " reason: " << ec.message() << std::endl;
+    } else {
+        std::cout << "Found IPs " << std::endl;
+        asio::ip::tcp::resolver::iterator iter_end;
+        for (; iter != iter_end; ++iter) {
+            std::cout << iter->endpoint().address().to_string() << std::endl;
+        }
+    }
+    return 0;
 }

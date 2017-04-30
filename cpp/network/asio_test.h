@@ -10,4 +10,6 @@
 boost::asio::ip::tcp::endpoint EndPointFromIP(std::string ip, unsigned short port, boost::system::error_code &ec);
 int asio_test();
 int connect_test();
+
+int dnsresolve_test();
 #endif //NETWORK_ASIO_TEST_H

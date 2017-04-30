@@ -24,4 +24,7 @@ ENDIF()
 target_link_libraries(CalibratePlugin ${OpenCV_LIBS})
 add_executable(Question Question.cpp)
 target_link_libraries(Question ${OpenCV_LIBS})
+
+add_executable(test_findchessboard test/test_findchessboard.cpp)
+target_link_libraries(test_findchessboard ${OpenCV_LIBS})
 # ADD_CUSTOM_COMMAND(TARGET CalibratePlugin POST_BUILD COMMAND cp -r ./CalibratePlugin.bundle ../../../Assets/Plugins/ )

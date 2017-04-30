@@ -217,23 +217,34 @@ class MainApp(Tk):
         # self.show_dialog()
         text = self.downloadentry.get()
         if len(text) == 0: return
-        text = text.replace("https://www.aitaotu.com", "")
-        album = self.picturemanager.get_by_url(text)
+        if text.find("aitaotu.com") >= 0:
+            text = text.replace("https://www.aitaotu.com", "")
+            album = self.picturemanager.get_by_url(text)
 
-        def info(x):
-            return "%s (%d/%d)" % (album.title, x, album.piccount)
+            def info(x):
+                return "%s (%d/%d)" % (album.title, x, album.piccount)
 
-        if album is not None:
-            text = info(0)
-            index = self.listbox.size()
-            self.listbox.insert(END, text)
+            if album is not None:
+                text = info(0)
+                index = self.listbox.size()
+                self.listbox.insert(END, text)
 
-            self.listbox.items.append(text)
-            self.listbox.filepaths.append(album.get_filepath())
+                self.listbox.items.append(text)
+                self.listbox.filepaths.append(album.get_filepath())
 
-            self.taskmanager.add_async_task(lambda: album.download('',
-                                                                   lambda x: self.setlistboxitem(index, info(x)),
+                self.taskmanager.add_async_task(lambda: album.download('',
+                                                                       lambda x: self.setlistboxitem(index, info(x)),
                                                                    self.log))
+        elif text.find("meitulu.com") >= 0:
+            def download():
+                s = mmsite.download_meitulu_from_url(text)
+                title = s[0]
+                self.listbox.insert(END, title)
+
+                self.listbox.items.append(title)
+                self.listbox.filepaths.append(s[1])
+
+            self.taskmanager.add_async_task(download)
 
     def run_command(self, cmd):
 

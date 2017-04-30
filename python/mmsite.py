@@ -1,4 +1,5 @@
 from urllib.request import urlopen
+import urllib
 from bs4 import BeautifulSoup
 import argparse
 import os
@@ -7,7 +8,15 @@ import re
 import time
 import mmsitedao
 def write_file(url,filename):
-    buffer = urlopen(url).read()
+    headers = {'user-agent':'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/57.0.2987.133 Safari/537.36'}
+    req = urllib.request.Request(
+        url,
+        data=None,
+        headers={
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.47 Safari/537.36'
+        }
+    )
+    buffer = urlopen(req).read()
     with open(filename,"wb") as fp:
         fp.write(buffer)
 
@@ -109,6 +118,79 @@ def get_mmpicset_info_from_url(url):
     # get tags
     tags = parse_tags(bsobj)
     return (title,iterpage,tags)
+
+
+
+def parse_meitulu_nextpageurl(bsobj):
+    pagesnodes = bsobj.find(id='pages').find_all(class_='a1')
+    nexturlnode = None;
+    for node in pagesnodes:
+        print(node.text)
+        if node.text == "下一页":
+            nexturlnode = node
+    if nexturlnode is None: return None
+    return nexturlnode.get("href")
+
+def parse_meitulu_pics(bsobj):
+    picnodes = bsobj.find(class_='content').find_all(class_='content_img')
+    picurls = [img.get('src') for img in picnodes]
+    return picurls
+
+def get_meitulu_page_iter(bsobj,lasturl):
+    """
+    :param content:
+    :return:
+    """
+    sitebase = "http://www.meitulu.com"
+
+    while bsobj is not None:
+        nexturl = parse_meitulu_nextpageurl(bsobj)
+
+        pics = parse_meitulu_pics(bsobj)
+        if pics is not None:
+            for picurl in pics:
+                yield  picurl
+        if sitebase + nexturl == lasturl:
+            nexturl = None
+        if nexturl is not None:
+            content = get_html_content(sitebase + nexturl)
+            lasturl = sitebase + nexturl
+            bsobj = BeautifulSoup(content)
+        else:
+            bsobj = None
+
+def get_meitulu_info_from_url(url):
+    """
+    :param url:
+    :return:
+        get the mm picture set info from url
+        tuple:
+        (title,pageiter,tags)
+    """
+    response = urlopen(url)
+    bytebuffer = response.read()
+    # decode to utf-8 string
+    htmlcontent = bytebuffer.decode('utf-8')
+    bsobj = BeautifulSoup(htmlcontent)
+    # get the title
+    title = bsobj.title.string
+    # get the page enumerate
+    iterpage = get_meitulu_page_iter(bsobj,url)
+    # get tags
+    tags = []
+    return (title,iterpage,tags)
+
+def download_meitulu_from_url(url):
+    title, iterpics, taglist = get_meitulu_info_from_url(url)
+    print(title)
+    if not os.path.exists(title):
+        os.makedirs(title)
+
+    for i, pic in enumerate(iterpics):
+        filename = os.path.join(title, "%02d.jpg" % (i + 1))
+        print(pic + " ==> " + filename)
+        write_file(pic, filename)
+    return (title,title)
 
 
 class AlreadyParseException(Exception):
