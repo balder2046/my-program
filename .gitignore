@@ -6,3 +6,7 @@
 *.pdb
 cmake-build*
 .idea
+UnityPlugin.bundle
+.idea
+libCalibratePlugin.bundle
+libCalibratePlugin.bundle.meta
