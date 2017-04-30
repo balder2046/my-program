@@ -3,7 +3,7 @@
 //
 #include <iostream>
 #include <strstream>
-#include "glog/logging.h"
+//#include "glog/logging.h"
 #include "boost/asio.hpp"
 #include "vector"
 #include <memory>
