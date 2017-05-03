@@ -76,49 +76,49 @@ public class GenerateTexture : MonoBehaviour
     static public void Disc_Red_Blue()
     {
 
-        GenerateCircusPattern(512, "disc-red-blue.png", White, Red, Green, White);
+        GenerateCircusPattern(512, "disc-red-blue.png", White, Red, Blue, White);
     }
 
     [MenuItem("Texture/Disc-Red-Purple")]
     static public void Disc_Red_Purple()
     {
 
-        GenerateCircusPattern(512, "disc-red-purple.png", White, Red, Green, White);
+        GenerateCircusPattern(512, "disc-red-purple.png", White, Red, Purple, White);
     }
 
     [MenuItem("Texture/Disc-Green-Blue")]
     static public void Disc_Green_Blue()
     {
 
-        GenerateCircusPattern(512, "disc-green-blue.png", White, Red, Green, White);
+        GenerateCircusPattern(512, "disc-green-blue.png", White, Green, Blue, White);
     }
 
     [MenuItem("Texture/Disc-Green-Red")]
     static public void Disc_Green_red()
     {
 
-        GenerateCircusPattern(512, "disc-green-red.png", White, Red, Green, White);
+		GenerateCircusPattern(512, "disc-green-red.png", White,  Green,Red, White);
     }
 
     [MenuItem("Texture/Disc-Green-Purple")]
     static public void Disc_Green_Purple()
     {
 
-        GenerateCircusPattern(512, "disc-green-purple.png", White, Red, Green, White);
+		GenerateCircusPattern(512, "disc-green-purple.png", White,  Green,Purple, White);
     }
 
     [MenuItem("Texture/Disc-Blue-Red")]
     static public void Disc_Blue_Red()
     {
 
-        GenerateCircusPattern(512, "disc-blue-red.png", White, Red, Green, White);
+        GenerateCircusPattern(512, "disc-blue-red.png", White, Blue,Red, White);
     }
 
     [MenuItem("Texture/Disc-Blue-Green")]
     static public void Disc_Blue_Green()
     {
 
-        GenerateCircusPattern(512, "disc-blue-green.png", White, Red, Green, White);
+        GenerateCircusPattern(512, "disc-blue-green.png", White, Blue, Green, White);
     }
 
     static int Sqr(int val)
