@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
+using System.Text;
 
 public class EditorCameraController : MonoBehaviour
 {
@@ -63,7 +64,13 @@ public class EditorCameraController : MonoBehaviour
 			Debug.Log ("the result is " + result);
         }
     }
-
+	public void OutputTransformToFile(string filename,Transform trans)
+	{
+		StringBuilder builder = new StringBuilder ();
+		builder.AppendFormat ("Location,{0},{1},{2}\n", transform.position.x, transform.position.y, transform.position.z);
+		builder.AppendFormat ("Rotation,{0},{1},{2}\n", transform.eulerAngles.x, transform.eulerAngles.y, transform.eulerAngles.z);
+		File.WriteAllText (filename, builder.ToString ());
+	}
     public  Texture2D SnapScreenToTexture()
     {
         GameObject camObj = new GameObject();
